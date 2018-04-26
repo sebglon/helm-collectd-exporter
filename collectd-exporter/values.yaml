@@ -1,0 +1,13 @@
+image:
+  collectd-exporter:
+    repository: collectd-exporter
+    tag: "0.3.1"
+    pullPolicy: IfNotPresent
+
+common:
+  extraLabels:
+
+collectd-exporter:
+  extraLabels:
+  service:
+    loadBalancerIP: ""

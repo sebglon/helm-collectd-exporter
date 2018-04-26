@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "collectd-exporter.fullname" . }}-metrics
+  labels:
+    app: {{ template "collectd-exporter.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    heritage: "{{ .Release.Service }}"
+    release: "{{ .Release.Name }}"
+    component: collectd-exporter
+    prometheus: monitoring
+    
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: collectd-exporter
+      port: 9103
+  selector:
+    name: collectd-exporter

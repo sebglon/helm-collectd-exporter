@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "collectd-exporter.fullname" . }}
+  labels:
+    app: {{ template "collectd-exporter.fullName" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    component: {{ template "collectd-exporter.fullName" . }}
+    role: collectd-exporter
+    {{- range $key, $value := .Values.global.extraLabels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+    {{- range $key, $value := .Values.common.extraLabels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+    {{- range $key, $value := .Values.mysql.extraLabels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: {{ template "collectd-exporter.fullName" . }}
+      role: collectd-exporter
+  template:
+    metadata:
+      labels:
+        component: {{ template "collectd-exporter.fullName" . }}
+        role: collectd-exporter  
+        {{- range $key, $value := .Values.global.extraLabels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        {{- range $key, $value := .Values.common.extraLabels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+        {{- range $key, $value := .Values.mysql.extraLabels }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+    spec:
+      containers:
+      - name: collectd-exporter
+        image: "{{ .Values.image.collectd-exporter.repository }}:{{ .Values.image.collectd-exporter.tag }}"
+        imagePullPolicy: {{ .Values.image.collectd-exporter.pullPolicy | quote }}
+        args: ["-collectd.listen-address=0.0.0.0:25826", "-log.level=debug", "-collectd.security-level=Sign", "-collectd.auth-file=/etc/collectd/config/auth_file"]
+        ports:
+          - containerPort: 9103
+            name: prom
+          - containerPort: 25826
+            name: collectd
+            protocol: UDP
+        volumeMounts:
+        - name: config
+          readOnly: true
+          mountPath: /etc/collectd/config/
+      volumes:
+      - name: config
+        secret:
+          secretName: "{{ template "collectd-exporter.fullname" . }}-config"      
