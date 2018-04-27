@@ -1,6 +1,6 @@
 HELM_REPO := akeneo-charts
 HELM_URL :=  gs://$(HELM_REPO)/
-HELM_CHART_NAME := colllectd-exporter
+HELM_CHART_NAME := collectd-exporter
 HELM_CHART_VERSION ?= 0.0.0-0
 
 .PHONY: helm-lint

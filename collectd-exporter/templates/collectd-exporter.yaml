@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "collectd-exporter.fullname" . }}
+  name: {{ template "collectd-exporter.fullName" . }}
   labels:
     app: {{ template "collectd-exporter.fullName" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -15,7 +15,7 @@ metadata:
     {{- range $key, $value := .Values.common.extraLabels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
-    {{- range $key, $value := .Values.mysql.extraLabels }}
+    {{- range $key, $value := .Values.collectdExporter.extraLabels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
 spec:
@@ -35,18 +35,18 @@ spec:
         {{- range $key, $value := .Values.common.extraLabels }}
         {{ $key }}: {{ $value | quote }}
         {{- end }}
-        {{- range $key, $value := .Values.mysql.extraLabels }}
+        {{- range $key, $value := .Values.collectdExporter.extraLabels }}
         {{ $key }}: {{ $value | quote }}
         {{- end }}
     spec:
       containers:
       - name: collectd-exporter
-        image: "{{ .Values.image.collectd-exporter.repository }}:{{ .Values.image.collectd-exporter.tag }}"
-        imagePullPolicy: {{ .Values.image.collectd-exporter.pullPolicy | quote }}
+        image: "{{ .Values.image.collectdExporter.repository }}:{{ .Values.image.collectdExporter.tag }}"
+        imagePullPolicy: {{ .Values.image.collectdExporter.pullPolicy | quote }}
         args: ["-collectd.listen-address=0.0.0.0:25826", "-log.level=debug", "-collectd.security-level=Sign", "-collectd.auth-file=/etc/collectd/config/auth_file"]
         ports:
           - containerPort: 9103
-            name: prom
+            name: exporter
           - containerPort: 25826
             name: collectd
             protocol: UDP
@@ -57,4 +57,4 @@ spec:
       volumes:
       - name: config
         secret:
-          secretName: "{{ template "collectd-exporter.fullname" . }}-config"      
+          secretName: "{{ template "collectd-exporter.fullName" . }}-config"

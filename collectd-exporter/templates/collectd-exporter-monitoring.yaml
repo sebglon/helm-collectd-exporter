@@ -1,0 +1,33 @@
+{{- if .Values.global.monitoring.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ template "collectd-exporter.fullName" . }}
+  labels:
+    app: {{ template "collectd-exporter.fullName" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    component: {{ template "collectd-exporter.fullName" . }}
+    prometheus: "{{ .Values.global.monitoring.namespace }}"
+    {{- range $key, $value := .Values.global.extraLabels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+    {{- range $key, $value := .Values.common.extraLabels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+    {{- range $key, $value := .Values.global.monitoring.extraLabels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  jobLabel: collectd-exporter
+  selector:
+    matchLabels:
+      component: {{ template "collectd-exporter.fullName" . }}
+      role: collectd-exporter
+  namespaceSelector:
+    matchNames: ["{{ .Release.Namespace }}"]
+  endpoints:
+  - port: collectd-exporter
+    interval: 1m
+{{- end }}
