@@ -8,12 +8,12 @@ helm-lint:
 	helm lint  ./$(HELM_CHART_NAME)/
 
 .PHONY: helm-build
-helm-build: helm-lint test-image-exists
+helm-build: helm-lint test-chart-exists
 	helm package -u ./$(HELM_CHART_NAME)/ --version $(HELM_CHART_VERSION)
 	helm gcs push ./$(HELM_CHART_NAME)-$(HELM_CHART_VERSION).tgz $(HELM_REPO)
 	rm ./$(HELM_CHART_NAME)-$(HELM_CHART_VERSION).tgz
 
-.PHONY: test-image-exists
+.PHONY: test-chart-exists
 test-image-exists:
 	$(info Check that chart is not existing yet : $(HELM_URL)$(HELM_CHART_NAME):$(HELM_CHART_VERSION))
 	@helm repo update
